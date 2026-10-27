@@ -2,76 +2,65 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>مقارنة الأرباح: PS vs Yabi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PS vs Yabi</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 15px; background: #f9f9f9; transition: direction 0.2s; }
-  h2 { text-align: center; color: #333; margin-bottom: 10px; }
-  .lang-switch { text-align: center; margin-bottom: 20px; }
-  .lang-switch button { padding: 8px 20px; border: 1px solid #888; background: #fff; cursor: pointer; border-radius: 4px; font-weight: bold; }
-  .lang-switch button:hover { background: #eee; }
-  .btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
-  .btns button { padding: 10px 15px; border: 1px solid #aaa; background: #fff; cursor: pointer; border-radius: 4px; font-weight: bold; }
-  .btns button:hover { background: #eee; }
-  table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 15px; }
-  th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-  th { background: #f0f0f0; }
-  .win { color: #d32f2f; font-weight: bold; }
-  .lose { color: #7b1fa2; font-weight: bold; }
-  .tier-tag { padding: 2px 6px; border-radius: 3px; color: #fff; font-size: 12px; }
-  .S { background: #e53935; } .A { background: #fb8c00; } .B { background: #43a047; } .C { background: #1e88e5; } .D { background: #757575; }
-  .note { font-size: 13px; color: #666; text-align: center; }
-  html[dir="ltr"] body { direction: ltr; }
-  html[dir="ltr"] table th, html[dir="ltr"] table td { text-align: center; }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background: #f9f9f9; color: #333; }
+  h1 { text-align: center; color: #a855f7; margin-bottom: 5px; font-size: 22px; }
+  .lang-btn { display: block; margin: 0 auto 15px; padding: 8px 20px; background: #fff; border: 1px solid #a855f7; color: #a855f7; border-radius: 20px; cursor: pointer; font-weight: bold; }
+  .preset-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+  .preset-btns button { padding: 8px 14px; border: 1px solid #ddd; background: #fff; border-radius: 15px; cursor: pointer; font-size: 14px; }
+  .preset-btns button:active { background: #a855f7; color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 15px; font-size: 13px; }
+  th { background: #a855f7; color: #fff; padding: 10px 5px; }
+  td { padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; }
+  .tier-tag { padding: 3px 8px; border-radius: 10px; color: #fff; font-size: 12px; }
+  .S { background: #9333ea; } .A { background: #a855f7; } .B { background: #c084fc; } .C { background: #1e88e5; } .D { background: #757575; }
+  .win { color: #16a34a; font-weight: bold; } .lose { color: #dc2626; font-weight: bold; }
+  #noteText { font-size: 12px; color: #666; text-align: center; margin-top: 10px; }
 </style>
 </head>
 <body>
-
-<h2 id="title">مقارنة الأرباح: PS vs Yabi</h2>
-
-<div class="lang-switch">
-  <button onclick="toggleLang()" id="langBtn">中文</button>
-</div>
-
-<div class="btns" id="presetBtns"></div>
-<div id="output"></div>
-<div class="note" id="noteText">ملاحظة: PS يُسوّى حسب أعلى شريحة مكتملة؛ عمولة Yabi للوكالات تُحدد تلقائياً حسب إجمالي الماس الشهري (S/A/B/C/D: 20%/15%/10%/5%)، والمذيع يحصل على 1$ مقابل كل 11777 ماس.</div>
+  <h1 id="title">مقارنة أرباح PS و Yabi</h1>
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">中文</button>
+  <div class="preset-btns" id="presetBtns"></div>
+  <div id="output"></div>
+  <p id="noteText"></p>
 
 <script>
+let currentLang = 'ar';
 const i18n = {
   ar: {
-    title: "مقارنة الأرباح: PS vs Yabi",
-    btn: "中文",
-    note: "ملاحظة: PS يُسوّى حسب أعلى شريحة مكتملة؛ عمولة Yabi للوكالات تُحدد تلقائياً حسب إجمالي الماس الشهري (S/A/B/C/D: 20%/15%/10%/5%)، والمذيع يحصل على 1$ مقابل كل 11777 ماس.",
+    title: "مقارنة أرباح PS و Yabi",
+    btn: "الصينية",
+    recharge: "شحن",
+    headers: ["المنصة", "الماس المكتسب", "هدية المضيف (ماس)", "راتب المضيف (تقديري $)", "عمولة الوكالة ($)", "فئة Yabi"],
     platform: { ps: "PS", yabi: "Yabi" },
-    headers: ["المنصة", "عدد الماس", "هدية المذيع / المستلم", "الراتب المتوقع", "عمولة الوكالة", "شريحة Yabi"],
-    recharge: "الشحن",
-    hostCompare: "مقارنة المذيع: ",
-    agencyCompare: "مقارنة الوكالة: ",
-    psMore: "PS أكثر بـ ",
-    yabiMore: "Yabi أكثر بـ ",
-    tier: "شريحة",
-    psGift: "ماس",
-    yabiGift: (amt) => `$${amt.toFixed(2)} (${amt.toFixed(0)} ماس ÷ 11777)`
+    yabiGiftNote: "الماس فقط",
+    hostCompare: "مقارنة راتب المضيف:",
+    agencyCompare: "مقارنة الوكالة:",
+    psMore: "PS أكثر بـ",
+    yabiMore: "Yabi أكثر بـ",
+    tier: "الفئة",
+    note: "ملاحظة: المضيف في Yabi يستلم الماس كما هو، وكل 11777 ماس = 1$. PS يحسب الراتب حسب الشرائح."
   },
   zh: {
     title: "PS vs Yabi 收益对比",
     btn: "العربية",
-    note: "注：PS按最高达标档位结算；Yabi公会按当月总钻石自动匹配S/A/B/C/D档（20%/15%/10%/5%），主播固定11777钻=1美金。",
-    platform: { ps: "PS", yabi: "Yabi" },
-    headers: ["平台", "钻石数", "主播收礼/到手", "主播预估薪资", "公会预估提成", "Yabi公会档位"],
     recharge: "充值",
-    hostCompare: "主播对比：",
-    agencyCompare: "公会对比：",
+    headers: ["平台", "获得钻石", "主播收礼(钻石)", "主播薪资(预估$)", "公会提成($)", "Yabi档位"],
+    platform: { ps: "PS", yabi: "Yabi" },
+    yabiGiftNote: "仅显示钻石",
+    hostCompare: "主播薪资对比：",
+    agencyCompare: "公会提成对比：",
     psMore: "PS 多 ",
     yabiMore: "Yabi 多 ",
-    tier: "档",
-    psGift: "钻",
-    yabiGift: (amt) => `$${amt.toFixed(2)} (${amt.toFixed(0)}钻÷11777)`
+    tier: "档位",
+    note: "注：Yabi 主播收礼直接显示钻石数，11777 钻=1$ 为提现换算；PS 按档位算薪资。"
   }
 };
 
-let currentLang = 'ar';
-
+// PS 档位：[钻石, 主播薪资, 公会提成]
 const psData = [
   [25000, 23, 5], [50000, 45, 10], [100000, 90, 20], [150000, 130, 25],
   [250000, 216, 38], [350000, 303, 53], [500000, 433, 75], [750000, 643, 116],
@@ -97,9 +86,7 @@ const presets = [2, 5, 10, 50, 100, 500, 1000, 2000, 5000, 10000, 20000, 50000, 
 
 function getPSTier(dia) {
   let res = [0, 0, 0];
-  for (const t of psData) {
-    if (dia >= t[0]) res = t; else break;
-  }
+  for (const t of psData) { if (dia >= t[0]) res = t; else break; }
   return res;
 }
 function getYabiTier(dia) {
@@ -111,10 +98,15 @@ function toggleLang() {
   currentLang = currentLang === 'ar' ? 'zh' : 'ar';
   document.documentElement.lang = currentLang === 'ar' ? 'ar' : 'zh-CN';
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.getElementById('title').innerText = i18n[currentLang].title;
-  document.getElementById('langBtn').innerText = i18n[currentLang].btn;
-  document.getElementById('noteText').innerText = i18n[currentLang].note;
+  renderLang();
   calc(window._lastUsd || 100);
+}
+
+function renderLang() {
+  const t = i18n[currentLang];
+  document.getElementById('title').innerText = t.title;
+  document.getElementById('langBtn').innerText = t.btn;
+  document.getElementById('noteText').innerText = t.note;
 }
 
 function calc(usd) {
@@ -122,43 +114,48 @@ function calc(usd) {
   const t = i18n[currentLang];
   const psDia = Math.floor(usd * 970);
   const yabiDia = usd * 10000;
-  const psTier = getPSTier(psDia);
-  const psHost = psTier[1], psAgency = psTier[2];
-  const yabiHost = yabiDia / 11777;
-  const yTier = getYabiTier(yabiDia);
-  const yabiAgency = yabiHost * yTier.rate;
 
-  let html = `
+  const psTier = getPSTier(psDia);
+  const psHostSalary = psTier[1];
+  const psAgency = psTier[2];
+
+  // Yabi：主播收礼=钻石；薪资=钻石/11777
+  const yabiHostGift = yabiDia;            // 纯钻石
+  const yabiHostSalary = yabiDia / 11777;  // 预估美金
+  const yTier = getYabiTier(yabiDia);
+  const yabiAgency = yabiHostSalary * yTier.rate;
+
+  document.getElementById('output').innerHTML = `
     <h3>${t.recharge} $${usd.toLocaleString()}</h3>
     <table>
       <tr>${t.headers.map(h => `<th>${h}</th>`).join('')}</tr>
       <tr>
         <td><strong>${t.platform.ps}</strong></td>
         <td>${psDia.toLocaleString()}</td>
-        <td>${psDia.toLocaleString()} ${t.psGift}</td>
-        <td>$${psHost.toLocaleString()}</td>
+        <td>${psDia.toLocaleString()}</td>
+        <td>$${psHostSalary.toLocaleString()}</td>
         <td>$${psAgency.toLocaleString()}</td>
         <td>-</td>
       </tr>
       <tr>
         <td><strong>${t.platform.yabi}</strong></td>
         <td>${yabiDia.toLocaleString()}</td>
-        <td>${t.yabiGift(yabiHost)}</td>
-        <td>$${yabiHost.toFixed(2)}</td>
+        <td>${yabiHostGift.toLocaleString()}</td>
+        <td>$${yabiHostSalary.toFixed(2)}</td>
         <td>$${yabiAgency.toFixed(2)}</td>
         <td><span class="tier-tag ${yTier.name}">${yTier.name} ${(yTier.rate*100)}%</span></td>
       </tr>
     </table>
-    <p><strong>${t.hostCompare}</strong> 
-      ${psHost > yabiHost ? `<span class="win">${t.psMore} $${(psHost - yabiHost).toFixed(2)}</span>` : `<span class="lose">${t.yabiMore} $${(yabiHost - psHost).toFixed(2)}</span>`}
+    <p><strong>${t.hostCompare}</strong>
+      ${psHostSalary > yabiHostSalary ? `<span class="win">${t.psMore} $${(psHostSalary - yabiHostSalary).toFixed(2)}</span>` : `<span class="lose">${t.yabiMore} $${(yabiHostSalary - psHostSalary).toFixed(2)}</span>`}
     </p>
-    <p><strong>${t.agencyCompare}</strong> 
+    <p><strong>${t.agencyCompare}</strong>
       ${psAgency > yabiAgency ? `<span class="win">${t.psMore} $${(psAgency - yabiAgency).toFixed(2)}</span>` : `<span class="lose">${t.yabiMore} $${(yabiAgency - psAgency).toFixed(2)} (${t.tier}:${yTier.name})</span>`}
     </p>
   `;
-  document.getElementById('output').innerHTML = html;
 }
 
+renderLang();
 const btnBox = document.getElementById('presetBtns');
 presets.forEach(v => {
   const b = document.createElement('button');
@@ -166,7 +163,6 @@ presets.forEach(v => {
   b.onclick = () => calc(v);
   btnBox.appendChild(b);
 });
-
 calc(100);
 </script>
 </body>

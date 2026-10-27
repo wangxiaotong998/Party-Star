@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PS vs Yabi</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background: #f9f9f9; color: #333; }
+  h1 { text-align: center; color: #a855f7; margin-bottom: 5px; font-size: 24px; }
+  .lang-btn { display: block; margin: 0 auto 15px; padding: 8px 20px; background: #fff; border: 1px solid #a855f7; color: #a855f7; border-radius: 20px; cursor: pointer; font-weight: bold; }
+  .preset-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+  .preset-btns button { padding: 8px 15px; border: 1px solid #ddd; background: #fff; border-radius: 15px; cursor: pointer; font-size: 14px; }
+  .preset-btns button:active { background: #a855f7; color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 15px; font-size: 13px; }
+  th { background: #a855f7; color: #fff; padding: 10px 5px; }
+  td { padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; }
+  .tier-tag { padding: 3px 8px; border-radius: 10px; color: #fff; font-size: 12px; }
+  .S { background: #9333ea; } .A { background: #a855f7; } .B { background: #c084fc; } .C { background: #d8b4fe; } .D { background: #e9d5ff; }
+  .win { color: #16a34a; font-weight: bold; } .lose { color: #dc2626; font-weight: bold; }
+  #noteText { font-size: 12px; color: #666; text-align: center; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1 id="title">PS vs Yabi</h1>
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">中文</button>
+  <div class="preset-btns" id="presetBtns"></div>
+  <div id="output"></div>
+  <p id="noteText"></p>
+
+<script>
+let currentLang = 'ar';
+const i18n = {
+  ar: {
+    title: "مقارنة أرباح PS و Yabi",
+    btn: "الصينية",
+    recharge: "شحن",
+    headers: ["المنصة", "الماس", "استلام المضيف", "راتب المضيف", "عمولة الوكالة", "فئة Yabi"],
+    platform: { ps: "PS", yabi: "Yabi" },
+    psGift: "ماس",
+    yabiGift: (v) => `$${v.toFixed(2)}`,
+    hostCompare: "مقارنة المضيف:",
+    agencyCompare: "مقارنة الوكالة:",
+    psMore: "PS أكثر بـ",
+    yabiMore: "Yabi أكثر بـ",
+    tier: "الفئة",
+    note: "ملاحظة: PS تُحسب حسب الفئة القصوى؛ Yabi تطابق الفئة تلقائيًا (S:20%، A:15%، B:10%، C/D:5%)."
+  },
+  zh: {
+    title: "PS vs Yabi 收益对比",
+    btn: "العربية",
+    recharge: "充值",
+    headers: ["平台", "钻石数", "主播收礼", "主播薪资", "公会提成", "Yabi档位"],
+    platform: { ps: "PS", yabi: "Yabi" },
+    psGift: "钻",
+    yabiGift: (v) => `$${v.toFixed(2)}`,
+    hostCompare: "主播对比：",
+    agencyCompare: "公会对比：",
+    psMore: "PS 多",
+    yabiMore: "Yabi 多",
+    tier: "档位",
+    note: "注：PS按最高达标档位结算；Yabi公会按当月总钻石自动匹配S/A/B/C/D档（20%/15%/10%/5%）。"
+  }
+};
+
+const psData = [ [0,0,0], [100000,82388,15520], [500000,41194,7759], [1000000,82388,15520], [5000000,411942,77590], [10000000,823885,155200], [150000000,127885,23690], [200000000,170513,31587], [250000000,213142,39483], [300000000,255770,47380] ];
+const yabiTiers = [ {name:'S',min:90000000,rate:0.20}, {name:'A',min:35000000,rate:0.15}, {name:'B',min:8000000,rate:0.10}, {name:'C',min:1800000,rate:0.05}, {name:'D',min:0,rate:0.05} ];
+const presets = [2, 5, 10, 50, 100, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000];
+
+function getPSTier(dia) { let res=[0,0,0]; for(const t of psData){ if(dia>=t[0])res=t; else break; } return res; }
+function getYabiTier(dia) { for(const t of yabiTiers) if(dia>=t.min) return t; return yabiTiers[4]; }
+
+function toggleLang() {
+  currentLang = currentLang === 'ar' ? 'zh' : 'ar';
+  document.documentElement.lang = currentLang === 'ar' ? 'ar' : 'zh-CN';
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('title').innerText = i18n[currentLang].title;
+  document.getElementById('langBtn').innerText = i18n[currentLang].btn;
+  document.getElementById('noteText').innerText = i18n[currentLang].note;
+  calc(window._lastUsd || 100);
+}
+
+function calc(usd) {
+  window._lastUsd = usd;
+  const t = i18n[currentLang];
+  const psDia = Math.floor(usd * 970), yabiDia = usd * 10000;
+  const psTier = getPSTier(psDia), psHost = psTier[1], psAgency = psTier[2];
+  const yabiHost = yabiDia / 11777, yTier = getYabiTier(yabiDia), yabiAgency = yabiHost * yTier.rate;
+  document.getElementById('output').innerHTML = `
+    <h3>${t.recharge} $${usd.toLocaleString()}</h3>
+    <table>
+      <tr>${t.headers.map(h=>`<th>${h}</th>`).join('')}</tr>
+      <tr><td><strong>${t.platform.ps}</strong></td><td>${psDia}</td><td>${psDia} ${t.psGift}</td><td>$${psHost}</td><td>$${psAgency}</td><td>-</td></tr>
+      <tr><td><strong>${t.platform.yabi}</strong></td><td>${yabiDia}</td><td>${t.yabiGift(yabiHost)}</td><td>$${yabiHost.toFixed(2)}</td><td>$${yabiAgency.toFixed(2)}</td><td><span class="tier-tag ${yTier.name}">${yTier.name} ${(yTier.rate*100)}%</span></td></tr>
+    </table>
+    <p><strong>${t.hostCompare}</strong> ${psHost>yabiHost?`<span class="win">${t.psMore} $${(psHost-yabiHost).toFixed(2)}</span>`:`<span class="lose">${t.yabiMore} $${(yabiHost-psHost).toFixed(2)}</span>`}</p>
+    <p><strong>${t.agencyCompare}</strong> ${psAgency>yabiAgency?`<span class="win">${t.psMore} $${(psAgency-yabiAgency).toFixed(2)}</span>`:`<span class="lose">${t.yabiMore} $${(yabiAgency-psAgency).toFixed(2)} (${t.tier}:${yTier.name})</span>`}</p>
+  `;
+}
+document.getElementById('noteText').innerText = i18n[currentLang].note;
+const btnBox = document.getElementById('presetBtns');
+presets.forEach(v => { const b=document.createElement('button'); b.innerText='$'+v; b.onclick=()=>calc(v); btnBox.appendChild(b); });
+calc(100);
+</script>
+</body>
+</html>
